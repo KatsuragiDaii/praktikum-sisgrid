@@ -3,6 +3,14 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Poppins } from "next/font/google";
+import { supabase, emailDariNim } from "@/lib/supabase";
+
+// Inisialisasi font Poppins
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,22 +24,27 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
 
-    // Simulasi login ke Dashboard Admin atau Ketua
-    setTimeout(() => {
-      if (username === "admin" && password === "admin123") {
-        router.push("/admin/dashboard");
-      } else if (username === "1101230001" && password === "ketua123") {
-        router.push("/ketua/registrasi");
-      } else {
-        setError("Username/NIM atau Password salah!");
-        setIsLoading(false);
-      }
-    }, 1000);
+    const kredensial = { email: emailDariNim(username), password };
+    const { error: authError } = await supabase.auth.signInWithPassword(kredensial);
+
+    if (authError) {
+      setError("NIM/Username atau Password salah!");
+      setIsLoading(false);
+      return;
+    }
+
+    const { data } = await supabase
+      .from("mahasiswa")
+      .select("is_admin")
+      .eq("nim", username.trim().toLowerCase())
+      .single();
+    router.push(data?.is_admin ? "/admin/dashboard" : "/ketua/registrasi");
   };
 
   return (
+    // Tambahkan poppins.className pada div pembungkus utama ini
     <div 
-      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-900"
+      className={`min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-900 ${poppins.className}`}
       style={{
         // Menggunakan gambar gardu induk / pembangkit listrik dari Unsplash sebagai placeholder
         backgroundImage: "url('https://images.unsplash.com/photo-1548337138-e87d889cc369?q=80&w=2036&auto=format&fit=crop')",
@@ -75,13 +88,13 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-200 mb-1 drop-shadow-sm">
-              Username
+              NIM
             </label>
             <input
               type="text"
               required
               className="w-full px-4 py-3 rounded-xl border border-white/20 text-white placeholder-gray-400 bg-black/20 focus:bg-black/40 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all backdrop-blur-sm"
-              placeholder="Masukkan Username"
+              placeholder="Masukkan NIM"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -94,6 +107,7 @@ export default function LoginPage() {
             <input
               type="password"
               required
+              minLength={6}
               className="w-full px-4 py-3 rounded-xl border border-white/20 text-white placeholder-gray-400 bg-black/20 focus:bg-black/40 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all backdrop-blur-sm"
               placeholder="Masukkan Password"
               value={password}
@@ -104,7 +118,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-4 flex justify-center items-center rounded-xl text-white font-semibold transition-all shadow-lg border border-white/20
+            className={`w-full py-3 px-4 flex justify-center items-center rounded-xl text-white font-semibold transition-all shadow-lg border border-white/20 cursor-pointer
               ${isLoading 
                 ? "bg-blue-600/50 cursor-not-allowed" 
                 : "bg-blue-600/80 hover:bg-blue-500 hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm"}`}
@@ -118,7 +132,7 @@ export default function LoginPage() {
                 Memproses...
               </span>
             ) : (
-              "Masuk ke Sistem"
+              "Login"
             )}
           </button>
         </form>
