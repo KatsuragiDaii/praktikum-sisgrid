@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase, HARI, SHIFT } from "@/lib/supabase";
 
 // --- Tipe Data ---
 interface JadwalShift {
@@ -12,29 +14,20 @@ interface JadwalShift {
   maksKuota: number;
 }
 
+type SlotDb = { id: number; hari: number; shift: number; kuota: number; terisi: number };
+type MhsDb = {
+  user_id: string | null;
+  nim: string;
+  nama: string;
+  is_ketua: boolean;
+  kelompok: { nomor: number; kelas: { nama: string } } | null;
+};
+
 export default function DashboardKetua() {
-  // --- MOCK DATA: Profil Login (Ketua) ---
-  const profilKetua = {
-    nama: "Devdan Wisesa Putranto",
-    nim: "1101230001",
-    kelompok: 1,
-    kelas: "EL-46-01",
-  };
-
-  const anggotaKelompok = [
-    { id: "P1", nim: "1101230001", nama: "DEVDAN WISESA PUTRANTO", role: "KETUA" },
-    { id: "P2", nim: "101012400374", nama: "AKBAR ALIFANDY KRESNAWAN", role: "ANGGOTA" },
-    { id: "P3", nim: "101012400155", nama: "DZAKY MUHAMMAD ASYAM", role: "ANGGOTA" },
-    { id: "P4", nim: "101012400221", nama: "PRADIVA ADINDA FEBIOLA", role: "ANGGOTA" },
-  ];
-
-  const hariList = ["SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
-  const shiftList = [
-    { shift: 1, waktu: "06.30 - 09.30" },
-    { shift: 2, waktu: "09.30 - 12.30" },
-    { shift: 3, waktu: "12.30 - 15.30" },
-    { shift: 4, waktu: "15.30 - 18.30" },
-  ];
+  const router = useRouter();
+  const [profilKetua, setProfilKetua] = useState({ nama: "", nim: "", kelompok: 0, kelas: "-", isKetua: false });
+  const [anggotaKelompok, setAnggotaKelompok] = useState<{ id: string; nim: string; nama: string; role: string }[]>([]);
+  const hariList = HARI.map((h) => h.toUpperCase());
 
   // --- STATE REGISTRASI ---
   const [jadwalTersedia, setJadwalTersedia] = useState<JadwalShift[]>([]); 
@@ -46,66 +39,75 @@ export default function DashboardKetua() {
   
   const [isMounted, setIsMounted] = useState(false);
 
-  // Mencegah Hydration Mismatch
-  useEffect(() => {
-    const dataJadwalAcak = hariList.flatMap((hari) =>
-      shiftList.map((s) => {
-        const isFull = hari === "SENIN" && s.shift === 1;
-        const randomKuota = isFull ? 0 : Math.floor(Math.random() * 4) + 1; 
-        return {
-          id: `${hari}-${s.shift}`,
-          hari,
-          shift: s.shift,
-          waktu: s.waktu,
-          sisaKuota: randomKuota,
-          maksKuota: 5,
-        };
-      })
+  // Ambil data asli dari Supabase
+  const muat = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return router.replace("/login");
+    const [m, s, p] = await Promise.all([
+      supabase.from("mahasiswa").select("*, kelompok(nomor, kelas(nama))").order("nim"),
+      supabase.from("slot_terisi").select("*").order("hari").order("shift"),
+      supabase.from("pendaftaran").select("slot_id").maybeSingle(),
+    ]);
+    const rows = (m.data ?? []) as unknown as MhsDb[];
+    const saya = rows.find((r) => r.user_id === user.id);
+    setProfilKetua({
+      nama: saya?.nama ?? "",
+      nim: saya?.nim ?? "",
+      kelompok: saya?.kelompok?.nomor ?? 0,
+      kelas: saya?.kelompok?.kelas.nama ?? "-",
+      isKetua: !!saya?.is_ketua,
+    });
+    setAnggotaKelompok(
+      rows.map((r) => ({ id: r.nim, nim: r.nim, nama: r.nama.toUpperCase(), role: r.is_ketua ? "KETUA" : "ANGGOTA" }))
     );
-    setJadwalTersedia(dataJadwalAcak);
+    const jadwal: JadwalShift[] = ((s.data ?? []) as SlotDb[]).map((x) => ({
+      id: String(x.id),
+      hari: HARI[x.hari - 1].toUpperCase(),
+      shift: x.shift,
+      waktu: SHIFT[x.shift - 1],
+      sisaKuota: Math.max(x.kuota - x.terisi, 0),
+      maksKuota: x.kuota,
+    }));
+    setJadwalTersedia(jadwal);
+    setJadwalTerpilih(jadwal.find((j) => j.id === String(p.data?.slot_id)) ?? null);
     setIsMounted(true);
-  }, []);
+  }, [router]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- memuat data awal dari Supabase
+    muat();
+  }, [muat]);
 
   // --- FUNGSI LOGIKA ---
   const handlePilihJadwal = (jadwal: JadwalShift) => {
-    if (jadwal.sisaKuota === 0) return; 
+    if (jadwal.sisaKuota === 0) return;
+    if (!profilKetua.isKetua) {
+      alert("Hanya ketua kelompok yang dapat melakukan registrasi.");
+      return;
+    }
     setTargetJadwal(jadwal);
     setIsModalOpen(true);
   };
 
-  const konfirmasiRegistrasi = () => {
+  // Kuota dicek atomik di database (fungsi daftar_slot)
+  const konfirmasiRegistrasi = async () => {
     if (!targetJadwal) return;
     setIsLoading(true);
-
-    // Proses Kunci Jadwal (Kuota - 1)
-    setTimeout(() => {
-      setJadwalTersedia((prev) =>
-        prev.map((j) =>
-          j.id === targetJadwal.id ? { ...j, sisaKuota: j.sisaKuota - 1 } : j
-        )
-      );
-      setJadwalTerpilih(targetJadwal);
-      setIsLoading(false);
-      setIsModalOpen(false);
-    }, 1000);
+    const { error } = await supabase.rpc("daftar_slot", { p_slot: Number(targetJadwal.id) });
+    if (error) alert(error.message);
+    await muat();
+    setIsLoading(false);
+    setIsModalOpen(false);
   };
 
-  // FUNGSI BARU: Batal / Ubah Jadwal
-  const batalPilihJadwal = () => {
+  const batalPilihJadwal = async () => {
     if (!jadwalTerpilih) return;
     setIsCancelling(true);
-
-    // Proses Pengembalian Kuota (Kuota + 1)
-    setTimeout(() => {
-      setJadwalTersedia((prev) =>
-        prev.map((j) =>
-          j.id === jadwalTerpilih.id ? { ...j, sisaKuota: j.sisaKuota + 1 } : j
-        )
-      );
-      setJadwalTerpilih(null);
-      setTargetJadwal(null);
-      setIsCancelling(false);
-    }, 800);
+    const { error } = await supabase.rpc("batal_daftar");
+    if (error) alert(error.message);
+    await muat();
+    setTargetJadwal(null);
+    setIsCancelling(false);
   };
 
   if (!isMounted) {
@@ -128,10 +130,13 @@ export default function DashboardKetua() {
              </div>
              <div>
                <h1 className="font-bold text-lg leading-tight">Registrasi Kelompok</h1>
-               <p className="text-xs text-blue-200">Hai, {profilKetua.nama.split(" ")[0]} (Ketua KLP {profilKetua.kelompok})</p>
+               <p className="text-xs text-blue-200">Hai, {profilKetua.nama.split(" ")[0]} ({profilKetua.isKetua ? "Ketua" : "Anggota"} KLP {profilKetua.kelompok})</p>
              </div>
           </div>
-          <button className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <button
+            onClick={async () => { await supabase.auth.signOut(); router.replace("/login"); }}
+            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
             Keluar
           </button>
         </div>
@@ -167,7 +172,7 @@ export default function DashboardKetua() {
               </button>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg border border-amber-400 p-6 text-white relative overflow-hidden animate-pulse-slow">
+            <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg border border-amber-400 p-6 text-white relative overflow-hidden">
               <div className="absolute -right-6 -top-6 opacity-20">
                 <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"></path></svg>
               </div>

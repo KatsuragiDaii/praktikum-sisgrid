@@ -14,9 +14,9 @@ export default function Admin() {
 
   const muat = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return router.replace("/");
+    if (!user) return router.replace("/login");
     const { data: me } = await supabase.from("mahasiswa").select("is_admin").eq("user_id", user.id).single();
-    if (!me?.is_admin) return router.replace("/ketua");
+    if (!me?.is_admin) return router.replace("/ketua/registrasi");
     const [s, k] = await Promise.all([
       supabase.from("slot_terisi").select("*").order("hari").order("shift"),
       supabase.from("kelompok").select("*", { count: "exact", head: true }),
@@ -26,6 +26,7 @@ export default function Admin() {
   }, [router]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- memuat data awal dari Supabase
     muat();
   }, [muat]);
 
@@ -70,7 +71,7 @@ export default function Admin() {
     <main className="mx-auto w-full max-w-4xl space-y-8 p-6">
       <header className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Admin Praktikum</h1>
-        <button className="text-sm underline" onClick={async () => { await supabase.auth.signOut(); router.replace("/"); }}>
+        <button className="text-sm underline" onClick={async () => { await supabase.auth.signOut(); router.replace("/login"); }}>
           Keluar
         </button>
       </header>
