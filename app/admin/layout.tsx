@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
 import { supabase } from "@/lib/supabase";
+import { useSesiBerubah, keluarAkun } from "@/lib/useSesiBerubah";
+import PeringatanSesi from "@/components/PeringatanSesi";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -34,6 +36,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const [siap, setSiap] = useState(false);
+  const [uid, setUid] = useState<string | null>(null);
+  const statusSesi = useSesiBerubah(uid);
 
   // Hanya admin yang boleh melihat halaman di bawah /admin
   useEffect(() => {
@@ -47,7 +51,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (!user) return router.replace("/login");
       const { data: me } = await supabase.from("mahasiswa").select("is_admin").eq("user_id", user.id).maybeSingle();
       if (!me?.is_admin) return router.replace("/ketua/registrasi");
-      if (!batal) setSiap(true);
+      if (!batal) {
+        setUid(user.id);
+        setSiap(true);
+      }
     })();
     return () => {
       batal = true;
@@ -66,6 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className={`flex h-screen bg-[#f8f9fc] ${poppins.className} overflow-hidden`}>
+      <PeringatanSesi status={statusSesi} />
       {/* SIDEBAR */}
       <aside className="w-64 bg-[#23424A] flex flex-col relative z-20 hidden md:flex">
         <div>
@@ -138,7 +146,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <button
             onClick={async () => {
-              await supabase.auth.signOut();
+              await keluarAkun();
               router.replace("/login");
             }}
             className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer shadow-sm shrink-0 ml-3"
