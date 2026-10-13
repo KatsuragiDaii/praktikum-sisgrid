@@ -1,4 +1,4 @@
-import { supabaseAdmin, cekAdmin } from "@/lib/supabaseAdmin";
+import { klienAdmin, cekAdmin, jawabKesalahan } from "@/lib/supabaseAdmin";
 
 type Gagal = { nim: string; pesan: string };
 type Hasil = { kelompok: boolean; mahasiswa: number; akun: number; lepas: number; gagal: Gagal[] };
@@ -8,7 +8,7 @@ const kosong = (): Hasil => ({ kelompok: false, mahasiswa: 0, akun: 0, lepas: 0,
 // Satu kegagalan (termasuk exception) tidak boleh menghentikan penghapusan mahasiswa lain.
 async function hapusAkun(id: string): Promise<{ message: string } | null> {
   try {
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
+    const { error } = await klienAdmin().auth.admin.deleteUser(id);
     return error;
   } catch (e) {
     return { message: (e as Error).message };
@@ -18,7 +18,7 @@ async function hapusAkun(id: string): Promise<{ message: string } | null> {
 // Menghapus mahasiswa beserta akun loginnya. Akun admin tidak pernah ikut terhapus.
 async function hapusMahasiswa(nims: string[], hasil: Hasil) {
   if (!nims.length) return;
-  const { data, error } = await supabaseAdmin.from("mahasiswa").select("nim,user_id,is_admin").in("nim", nims);
+  const { data, error } = await klienAdmin().from("mahasiswa").select("nim,user_id,is_admin").in("nim", nims);
   if (error) throw new Error(error.message);
 
   for (const m of data ?? []) {
@@ -34,7 +34,7 @@ async function hapusMahasiswa(nims: string[], hasil: Hasil) {
       }
       if (!e) hasil.akun++;
     }
-    const { error: e2 } = await supabaseAdmin.from("mahasiswa").delete().eq("nim", m.nim);
+    const { error: e2 } = await klienAdmin().from("mahasiswa").delete().eq("nim", m.nim);
     if (e2) hasil.gagal.push({ nim: m.nim, pesan: e2.message });
     else hasil.mahasiswa++;
   }
@@ -42,17 +42,17 @@ async function hapusMahasiswa(nims: string[], hasil: Hasil) {
 
 // Menghapus kelompok.
 async function hapusKelompok(id: number, mode: "hapus" | "lepas", hasil: Hasil) {
-  const { data: ada, error } = await supabaseAdmin.from("kelompok").select("id").eq("id", id).maybeSingle();
+  const { data: ada, error } = await klienAdmin().from("kelompok").select("id").eq("id", id).maybeSingle();
   if (error) throw new Error(error.message);
   if (!ada) throw new Error("Kelompok tidak ditemukan (mungkin sudah dihapus)");
 
   if (mode === "hapus") {
-    const { data: anggota, error: e1 } = await supabaseAdmin.from("mahasiswa").select("nim").eq("kelompok_id", id);
+    const { data: anggota, error: e1 } = await klienAdmin().from("mahasiswa").select("nim").eq("kelompok_id", id);
     if (e1) throw new Error(e1.message);
     await hapusMahasiswa((anggota ?? []).map((a) => a.nim), hasil);
     if (hasil.gagal.length) return; 
   } else {
-    const { data: dilepas, error: e2 } = await supabaseAdmin
+    const { data: dilepas, error: e2 } = await klienAdmin()
       .from("mahasiswa")
       .update({ kelompok_id: null, is_ketua: false })
       .eq("kelompok_id", id)
@@ -61,7 +61,7 @@ async function hapusKelompok(id: number, mode: "hapus" | "lepas", hasil: Hasil) 
     hasil.lepas = dilepas?.length ?? 0;
   }
 
-  const { error: e3 } = await supabaseAdmin.from("kelompok").delete().eq("id", id);
+  const { error: e3 } = await klienAdmin().from("kelompok").delete().eq("id", id);
   if (e3) throw new Error(e3.message);
   hasil.kelompok = true;
 }
@@ -70,8 +70,7 @@ export async function POST(req: Request) {
   try {
     await cekAdmin(req);
   } catch (error) {
-    // Menangkap pesan detail dan mengirimkannya ke layar
-    return Response.json({ error: `Akses ditolak: ${(error as Error).message}` }, { status: 403 });
+    return jawabKesalahan(error);
   }
 
   const b = (await req.json().catch(() => null)) as {
@@ -95,7 +94,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "Aksi tidak dikenal" }, { status: 400 });
     }
   } catch (e) {
-    return Response.json({ error: (e as Error).message }, { status: 500 });
+    return jawabKesalahan(e);
   }
   return Response.json(hasil);
 }

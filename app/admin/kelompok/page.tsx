@@ -98,7 +98,7 @@ export default function KelompokPage() {
 
   async function jalankanReset(e: React.FormEvent) {
     e.preventDefault();
-    if (!resetAkun || pwBaru.length < 6) return;
+    if (!resetAkun || pwBaru.length < 8) return;
     setMenyimpanPw(true);
     try {
       const [h] = await kirimAkun([{ nim: resetAkun.nim, password: pwBaru }]);
@@ -139,11 +139,11 @@ export default function KelompokPage() {
     // --- PERBAIKAN DI SINI ---
     // Jangan langsung parse JSON, baca sebagai text dulu untuk mencegah error "Unexpected end of JSON input"
     const text = await res.text();
-    let j: any = {};
+    let j = {} as HasilHapus & { error?: string };
     
     try {
       j = text ? JSON.parse(text) : {};
-    } catch (err) {
+    } catch {
       console.error("Gagal parse respons JSON:", text);
     }
 
@@ -326,7 +326,7 @@ export default function KelompokPage() {
               <code className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded font-mono">nim, nama, kelas, kelompok, ketua(1/0), password</code>
               <br />
               <span className="text-gray-500 text-xs">
-                Contoh: 1101230001, Budi, TE-45, A, 1, pass123. Kelompok ditulis dengan huruf (A, B, C, ...). Password hanya diisi untuk ketua (minimal 6 karakter, tanpa koma).
+                Contoh: 1101230001, Budi, TE-45, A, 1, sandi12345. Kelompok ditulis dengan huruf (A, B, C, ...). Password hanya diisi untuk ketua (minimal 8 karakter, tanpa koma).
                 Memasukkan NIM yang sudah ada akan memindahkannya ke kelompok yang ditulis.
               </span>
             </p>
@@ -583,10 +583,10 @@ export default function KelompokPage() {
                 <input
                   type="text"
                   required
-                  minLength={6}
+                  minLength={8}
                   value={pwBaru}
                   onChange={(e) => setPwBaru(e.target.value)}
-                  placeholder="Password (min. 6 karakter)"
+                  placeholder="Password (min. 8 karakter)"
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-800 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A] text-center"
                   autoFocus
                 />

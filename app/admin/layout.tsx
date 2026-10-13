@@ -39,7 +39,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     let batal = false;
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      // getSession() membaca sesi dari perangkat tanpa memanggil server Auth. getUser() memanggil /auth/v1/user
+      // pada setiap pemuatan halaman dan terkena batas laju per IP (di kampus banyak orang berbagi satu IP).
+      // Ini hanya penjaga tampilan; keamanan sebenarnya ada di RLS database dan di cekAdmin() sisi server.
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) return router.replace("/login");
       const { data: me } = await supabase.from("mahasiswa").select("is_admin").eq("user_id", user.id).maybeSingle();
       if (!me?.is_admin) return router.replace("/ketua/registrasi");

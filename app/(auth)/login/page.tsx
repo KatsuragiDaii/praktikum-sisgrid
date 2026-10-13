@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
 import { supabase, emailDariNim } from "@/lib/supabase";
@@ -19,26 +19,47 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Jeda singkat setelah server sibuk / membatasi laju, supaya banyak orang yang menekan tombol berulang-ulang
+  // tidak memperparah antrean (dan tidak makin cepat terkena batas laju per IP di Supabase Auth).
+  const [jeda, setJeda] = useState(0);
+  useEffect(() => {
+    if (jeda <= 0) return;
+    const t = setTimeout(() => setJeda((j) => j - 1), 1000);
+    return () => clearTimeout(t);
+  }, [jeda]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading || jeda > 0) return;
     setIsLoading(true);
     setError("");
 
-    const kredensial = { email: emailDariNim(username), password };
-    const { error: authError } = await supabase.auth.signInWithPassword(kredensial);
+    try {
+      const kredensial = { email: emailDariNim(username), password };
+      const { data: sesi, error: authError } = await supabase.auth.signInWithPassword(kredensial);
 
-    if (authError) {
-      setError("NIM/Username atau Password salah!");
+      if (authError) {
+        const status = authError.status ?? 0;
+        if (status === 429) {
+          setError("Terlalu banyak percobaan login dari jaringan ini. Mohon tunggu sebentar, lalu coba lagi.");
+          setJeda(30);
+        } else if (status === 0 || status >= 500) {
+          setError("Server sedang sibuk atau koneksi terputus. Mohon coba lagi sebentar lagi.");
+          setJeda(5);
+        } else {
+          setError("NIM/Username atau Password salah!");
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      const { data } = await supabase.from("mahasiswa").select("is_admin").eq("user_id", sesi.user.id).maybeSingle();
+      router.push(data?.is_admin ? "/admin/dashboard" : "/ketua/registrasi");
+    } catch {
+      setError("Server sedang sibuk atau koneksi terputus. Mohon coba lagi sebentar lagi.");
+      setJeda(5);
       setIsLoading(false);
-      return;
     }
-
-    const { data } = await supabase
-      .from("mahasiswa")
-      .select("is_admin")
-      .eq("nim", username.trim().toLowerCase())
-      .single();
-    router.push(data?.is_admin ? "/admin/dashboard" : "/ketua/registrasi");
   };
 
   return (
@@ -93,6 +114,7 @@ export default function LoginPage() {
             <input
               type="text"
               required
+              autoComplete="username"
               className="w-full px-4 py-3 rounded-xl border border-white/20 text-white placeholder-gray-400 bg-black/20 focus:bg-black/40 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all backdrop-blur-sm"
               placeholder="Masukkan NIM"
               value={username}
@@ -107,7 +129,7 @@ export default function LoginPage() {
             <input
               type="password"
               required
-              minLength={6}
+              autoComplete="current-password"
               className="w-full px-4 py-3 rounded-xl border border-white/20 text-white placeholder-gray-400 bg-black/20 focus:bg-black/40 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all backdrop-blur-sm"
               placeholder="Masukkan Password"
               value={password}
@@ -117,9 +139,9 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || jeda > 0}
             className={`w-full py-3 px-4 flex justify-center items-center rounded-xl text-white font-semibold transition-all shadow-lg border border-white/20 cursor-pointer
-              ${isLoading 
+              ${isLoading || jeda > 0 
                 ? "bg-blue-600/50 cursor-not-allowed" 
                 : "bg-blue-600/80 hover:bg-blue-500 hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm"}`}
           >
