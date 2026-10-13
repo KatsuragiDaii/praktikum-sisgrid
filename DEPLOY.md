@@ -17,7 +17,7 @@ Urutan pengerjaan (jangan dibalik, terutama langkah 2 dan 3):
 
 | Area | Perubahan | Alasan |
 |---|---|---|
-| Akun | Trigger `tautkan_akun` hanya menerima akun yang dibuat admin (`app_metadata.dibuat_admin`). Route `/api/admin/akun` sudah mengirim tanda itu. | Sebelumnya, selama pendaftaran mandiri Supabase aktif, siapa pun yang tahu NIM bisa membuat akun lebih dulu dan menguasai baris ketua. |
+| Akun | Trigger `tautkan_akun` hanya menerima akun baru yang punya izin 60 detik di tabel `izin_akun`. Tabel itu hanya bisa ditulis server (kunci rahasia); route `/api/admin/akun` mencatat izin sebelum membuat akun, dan izinnya sekali pakai. | Sebelumnya, selama pendaftaran mandiri Supabase aktif, siapa pun yang tahu NIM bisa membuat akun lebih dulu dan menguasai baris ketua. |
 | Hak akses DB | `anon` dicabut dari semua tabel dan fungsi; view `slot_terisi` hanya untuk yang sudah login. | Kuota tidak bisa lagi dibaca orang tanpa login. |
 | Beban Auth | Halaman admin dan ketua memakai `getSession()` (baca sesi lokal), bukan `getUser()` (panggilan ke server tiap halaman dibuka). | Batas laju Auth Supabase dihitung **per alamat IP**; di kampus banyak ketua memakai IP yang sama. |
 | Login | Pesan khusus saat dibatasi (429) atau server sibuk, tombol dijeda 30 dtk / 5 dtk. Pesan salah sandi tetap umum. | Mencegah orang menekan tombol berulang-ulang yang justru memperparah antrean. |
@@ -70,9 +70,14 @@ Ambil tiga nilai di **Project Settings > API**: Project URL, anon/publishable ke
 
 Supabase > **SQL Editor** > tempel isi `supabase/migrasi-03-keamanan.sql` > Run. Aman dijalankan berulang.
 
-Lakukan **setelah** kode baru tayang di Vercel: setelah migrasi, akun hanya bisa dibuat oleh route admin versi
-baru (yang mengirim `app_metadata.dibuat_admin`). Versi lama akan ditolak dengan pesan
-"Akun hanya dapat dibuat oleh admin". Akun yang sudah ada tidak terpengaruh.
+Jalankan SQL ini dan deploy kode baru (route `/api/admin/akun` yang mencatat izin) dalam waktu berdekatan. Selama salah
+satunya belum, pembuatan akun ketua baru gagal dengan "Database error creating new user" (akun yang sudah ada tidak
+terpengaruh). Jika Anda pernah menjalankan versi migrasi yang lama (yang memakai `app_metadata.dibuat_admin`),
+jalankan ulang file ini: versi lama itu keliru karena Supabase Auth baru mengisi `app_metadata` sesudah baris user
+dimasukkan, sehingga semua pembuatan akun ditolak.
+
+Perlindungan utamanya tetap mematikan **Allow new users to sign up** di dashboard (bagian 1). Izin 60 detik ini adalah
+lapisan kedua jika opsi itu lupa dimatikan.
 
 Aturan jumlah anggota kelompok (2-6) di fungsi `daftar_slot` tidak diubah migrasi ini.
 

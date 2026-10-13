@@ -5,16 +5,33 @@
 -- 1) Akun hanya boleh lahir dari admin ------------------------------------------------------------------
 -- Sebelumnya trigger ini menautkan akun baru ke baris mahasiswa berdasarkan email NIM (nim@student...).
 -- Selama pendaftaran mandiri (sign-up) Supabase Auth aktif, siapa pun yang tahu NIM bisa membuat akun lebih
--- dulu daripada ketuanya dan menguasai barisnya. Sekarang akun hanya diterima bila ditandai
--- app_metadata.dibuat_admin = true. Tanda itu hanya bisa diisi lewat API admin (kunci rahasia di server);
--- klien biasa hanya bisa mengisi user_metadata, bukan app_metadata.
+-- dulu daripada ketuanya dan menguasai barisnya.
+--
+-- Cara kerja sekarang: sebelum membuat akun, server (kunci rahasia) mencatat IZIN singkat (60 detik) untuk NIM itu
+-- di tabel izin_akun. Trigger hanya menerima akun baru bila izinnya ada dan belum kedaluwarsa, lalu menghapus
+-- izin itu (sekali pakai). Tabel izin_akun tidak bisa diakses anon maupun pengguna login; hanya service_role.
+--
+-- CATATAN: versi migrasi ini yang lama memeriksa tanda app_metadata.dibuat_admin. Itu keliru: Supabase Auth baru
+-- mengisi app_metadata SESUDAH baris user dimasukkan, sehingga trigger selalu menolak dan pembuatan akun gagal
+-- dengan "Database error creating new user". Menjalankan ulang file ini memperbaikinya.
+create table if not exists izin_akun (
+  nim text primary key,
+  sampai timestamptz not null
+);
+alter table izin_akun enable row level security;  -- tanpa policy: tidak ada akses lewat API selain service_role
+revoke all on izin_akun from anon, authenticated;
+delete from izin_akun where sampai < now();
+
 create or replace function tautkan_akun() returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  v_nim text := lower(split_part(new.email, '@', 1));
 begin
-  if coalesce(new.raw_app_meta_data ->> 'dibuat_admin', '') <> 'true' then
+  if not exists (select 1 from izin_akun where nim = v_nim and sampai > now()) then
     raise exception 'Akun hanya dapat dibuat oleh admin';
   end if;
-  update mahasiswa set user_id = new.id where lower(nim) = lower(split_part(new.email, '@', 1)) and user_id is null;
+  update mahasiswa set user_id = new.id where lower(nim) = v_nim and user_id is null;
   if not found then raise exception 'NIM belum didaftarkan admin atau akun sudah ada'; end if;
+  delete from izin_akun where nim = v_nim;
   return new;
 end $$;
 
@@ -46,3 +63,6 @@ end $$;
 -- 3) Indeks untuk query yang dipakai tiap kali halaman dimuat dan tiap kali kuota dihitung -----------------
 create index if not exists mahasiswa_kelompok_id_idx on mahasiswa (kelompok_id);
 create index if not exists pendaftaran_slot_id_idx on pendaftaran (slot_id);
+
+-- 4) Muat ulang cache skema PostgREST agar tabel baru (izin_akun) langsung dikenali API ------------------------
+notify pgrst, 'reload schema';
