@@ -78,7 +78,10 @@ export default function DashboardKetua() {
   const [isMounted, setIsMounted] = useState(false);
 
   const muat = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    // getSession() membaca sesi dari perangkat tanpa memanggil server Auth (getUser() memanggil /auth/v1/user tiap
+    // halaman dimuat dan terkena batas laju per IP). Data tetap dilindungi RLS di database.
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) return router.replace("/login");
 
     const [m, s, p] = await Promise.all([
@@ -136,13 +139,14 @@ export default function DashboardKetua() {
   }, [router]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- memuat data awal dari Supabase
     muat();
   }, [muat]);
 
   const gantiPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPesanPw("");
-    if (pwBaru.length < 6) return setPesanPw("Password baru minimal 6 karakter.");
+    if (pwBaru.length < 8) return setPesanPw("Password baru minimal 8 karakter.");
     if (pwBaru !== pwUlang) return setPesanPw("Konfirmasi password tidak sama.");
     setSavingPw(true);
     
@@ -481,8 +485,8 @@ export default function DashboardKetua() {
                     <input 
                       type="password" 
                       required 
-                      minLength={6} 
-                      placeholder="Password baru (min. 6)" 
+                      minLength={8} 
+                      placeholder="Password baru (min. 8)" 
                       value={pwBaru} 
                       onChange={(e) => setPwBaru(e.target.value)} 
                       className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-800 placeholder-gray-500 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A]" 
