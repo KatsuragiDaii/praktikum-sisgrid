@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Poppins } from "next/font/google";
 import { supabase, emailDariNim, HARI, SHIFT } from "@/lib/supabase";
 import { hurufKelompok } from "@/lib/kelompok";
+import { useSesiBerubah, keluarAkun } from "@/lib/useSesiBerubah";
+import PeringatanSesi from "@/components/PeringatanSesi";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -24,6 +26,7 @@ interface JadwalShift {
 type SlotDb = { id: number; hari: number; shift: number; kuota: number; terisi: number };
 type MhsDb = {
   user_id: string | null;
+  is_admin: boolean;
   nim: string;
   nama: string;
   is_ketua: boolean;
@@ -76,6 +79,8 @@ export default function DashboardKetua() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [uid, setUid] = useState<string | null>(null);
+  const statusSesi = useSesiBerubah(uid);
 
   const muat = useCallback(async () => {
     // getSession() membaca sesi dari perangkat tanpa memanggil server Auth (getUser() memanggil /auth/v1/user tiap
@@ -94,10 +99,15 @@ export default function DashboardKetua() {
     const saya = rows.find((r) => r.user_id === user.id);
     
     if (!saya) {
-      await supabase.auth.signOut();
+      await keluarAkun();
       return router.replace("/login");
     }
 
+    // Akun admin tidak punya kelompok; halamannya ada di /admin (mis. setelah tab ini berganti akun karena
+    // login admin di tab lain pada browser yang sama).
+    if (saya.is_admin) return router.replace("/admin/dashboard");
+
+    setUid(user.id);
     setProfilKetua({
       nama: saya.nama,
       nim: saya.nim,
@@ -205,6 +215,7 @@ export default function DashboardKetua() {
 
   return (
     <div className={`flex h-screen bg-[#f8f9fc] ${poppins.className} overflow-hidden`}>
+      <PeringatanSesi status={statusSesi} />
       
       {/* SIDEBAR KIRI (DESKTOP) */}
       <aside className="hidden md:flex w-64 bg-[#23424A] flex-col shrink-0 relative z-20 overflow-hidden">
@@ -287,7 +298,7 @@ export default function DashboardKetua() {
              </div>
             <button
               onClick={async () => {
-                await supabase.auth.signOut();
+                await keluarAkun();
                 router.replace("/login");
               }}
               className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm cursor-pointer"
