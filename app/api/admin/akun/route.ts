@@ -6,6 +6,13 @@ const MIN_PASSWORD = 8;
 
 type Hasil = { nim: string; ok: boolean; pesan?: string };
 
+// Supabase menyembunyikan pesan asli trigger database di balik kalimat umum ini.
+function petunjukGalat(pesan: string): string {
+  return /Database error creating new user/i.test(pesan)
+    ? `${pesan}. Biasanya trigger tautkan_akun menolak: jalankan ulang supabase/migrasi-03-keamanan.sql versi terbaru, atau lihat Supabase > Logs > Postgres.`
+    : pesan;
+}
+
 // Admin membuat akun ketua (atau mengganti passwordnya jika akun sudah ada).
 export async function POST(req: Request) {
   try {
@@ -36,17 +43,22 @@ export async function POST(req: Request) {
           if (e0) r = { nim: id, ok: false, pesan: e0.message };
           else if (!m) r = { nim: id, ok: false, pesan: "belum ada di daftar mahasiswa" };
           else {
-            const { error } = m.user_id
-              ? await db.auth.admin.updateUserById(m.user_id, { password })
-              : // app_metadata.dibuat_admin dicek oleh trigger tautkan_akun (supabase/migrasi-03-keamanan.sql):
-                // akun yang dibuat lewat pendaftaran mandiri ditolak, hanya yang dibuat di sini yang diterima.
-                await db.auth.admin.createUser({
-                  email: emailDariNim(id),
-                  password,
-                  email_confirm: true,
-                  app_metadata: { dibuat_admin: true },
-                });
-            r = { nim: id, ok: !error, pesan: error?.message };
+            let error: { message: string } | null;
+            if (m.user_id) {
+              ({ error } = await db.auth.admin.updateUserById(m.user_id, { password }));
+            } else {
+              // Trigger tautkan_akun (supabase/migrasi-03-keamanan.sql) hanya menerima akun baru yang punya izin singkat
+              // di tabel izin_akun, yang hanya bisa ditulis oleh server ini. (app_metadata tidak bisa dipakai sebagai
+              // tanda: Supabase Auth baru mengisinya setelah baris user dimasukkan.)
+              const { error: eIzin } = await db.from("izin_akun").upsert({ nim: id, sampai: new Date(Date.now() + 60_000).toISOString() });
+              if (eIzin) {
+                hasil[i] = { nim: id, ok: false, pesan: `Gagal menyiapkan izin akun: ${eIzin.message}. Pastikan migrasi-03-keamanan.sql versi terbaru sudah dijalankan.` };
+                return;
+              }
+              ({ error } = await db.auth.admin.createUser({ email: emailDariNim(id), password, email_confirm: true }));
+              if (error) await db.from("izin_akun").delete().eq("nim", id); // izin tidak dipakai: bersihkan
+            }
+            r = { nim: id, ok: !error, pesan: error ? petunjukGalat(error.message) : undefined };
           }
         }
       } catch (e) {
