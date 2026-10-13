@@ -1,16 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Poppins } from "next/font/google";
 import { supabase, emailDariNim } from "@/lib/supabase";
+import { catatAktivitas, teksBatasIdle } from "@/lib/idle";
 
 // Inisialisasi font Poppins
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
 });
+
+// Muncul setelah keluar otomatis karena tidak ada aktivitas (/login?alasan=idle).
+function PesanIdle() {
+  const params = useSearchParams();
+  if (params.get("alasan") !== "idle") return null;
+  return (
+    <div role="status" className="mb-5 p-3 bg-amber-400/20 backdrop-blur-sm text-amber-100 text-sm rounded-lg border border-amber-300/50 text-center">
+      Anda keluar otomatis karena tidak ada aktivitas selama {teksBatasIdle()}. Silakan login kembali.
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,6 +65,7 @@ export default function LoginPage() {
         return;
       }
 
+      catatAktivitas(); // mulai hitung batas tidak aktif dari saat login
       const { data } = await supabase.from("mahasiswa").select("is_admin").eq("user_id", sesi.user.id).maybeSingle();
       router.push(data?.is_admin ? "/admin/dashboard" : "/ketua/registrasi");
     } catch {
@@ -97,6 +110,10 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-white drop-shadow-md">Registrasi Praktikum</h1>
           <p className="text-sm text-gray-200 mt-1 drop-shadow-md">Power System and Grid Digitalization Laboratory</p>
         </div>
+
+        <Suspense fallback={null}>
+          <PesanIdle />
+        </Suspense>
 
         {/* Notifikasi Error */}
         {error && (

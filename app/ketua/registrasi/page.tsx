@@ -8,6 +8,8 @@ import { supabase, emailDariNim, HARI, SHIFT } from "@/lib/supabase";
 import { hurufKelompok } from "@/lib/kelompok";
 import { useSesiBerubah, keluarAkun } from "@/lib/useSesiBerubah";
 import PeringatanSesi from "@/components/PeringatanSesi";
+import PeringatanIdle from "@/components/PeringatanIdle";
+import { useIdleLogout } from "@/lib/useIdleLogout";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -81,6 +83,7 @@ export default function DashboardKetua() {
   const [isMounted, setIsMounted] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
   const statusSesi = useSesiBerubah(uid);
+  const idle = useIdleLogout(uid !== null);
 
   const muat = useCallback(async () => {
     // getSession() membaca sesi dari perangkat tanpa memanggil server Auth (getUser() memanggil /auth/v1/user tiap
@@ -216,6 +219,7 @@ export default function DashboardKetua() {
   return (
     <div className={`flex h-screen bg-[#f8f9fc] ${poppins.className} overflow-hidden`}>
       <PeringatanSesi status={statusSesi} />
+      <PeringatanIdle sisaDetik={idle.sisaDetik} onLanjut={idle.lanjut} />
       
       {/* SIDEBAR KIRI (DESKTOP) */}
       <aside className="hidden md:flex w-64 bg-[#23424A] flex-col shrink-0 relative z-20 overflow-hidden">
