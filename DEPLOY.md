@@ -24,6 +24,8 @@ Urutan pengerjaan (jangan dibalik, terutama langkah 2 dan 3):
 | Route admin | Klien admin dibuat saat dipakai (bukan saat import), semua galat dijawab JSON (403 hak akses, 500 server/konfigurasi, 400 input), input divalidasi, pembuatan akun dibatasi 5 paralel, maksimum 100 akun per permintaan. | Tidak ada lagi 500 kosong ("Unexpected end of JSON input"). |
 | Password | Minimal 8 karakter (pembuatan akun, reset, ganti password). Kolom login tidak lagi memaksa panjang agar akun lama (6-7 karakter) tetap bisa masuk. | Password lebih kuat. |
 | Header | CSP, HSTS, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Cache-Control: no-store` untuk `/api/*`, `X-Powered-By` dihapus. | Perlindungan dasar terhadap XSS, clickjacking, dan cache jawaban API. |
+| Batas tidak aktif | Tanpa gerakan mouse/ketikan/sentuhan/scroll selama 5 menit, pengguna keluar otomatis (peringatan 30 detik sebelumnya) dan diarahkan ke login. Sesi dicabut di server hanya untuk browser itu (`scope: local`). Aktivitas di tab mana pun menjaga semua tab. Ubah lewat `NEXT_PUBLIC_IDLE_MENIT`. | Mengurangi risiko komputer bersama/lab yang ditinggal dalam keadaan login. |
+| Peringatan antar tab | Tab yang akunnya berganti karena login di tab lain menampilkan dialog, bukan diam-diam berganti akun. | Satu browser hanya punya satu sesi login. |
 | Keep-alive | `/api/health` + cron harian di `vercel.json`. | Proyek Supabase Free dijeda setelah 7 hari tanpa aktivitas. |
 
 ---
@@ -57,6 +59,7 @@ Ambil tiga nilai di **Project Settings > API**: Project URL, anon/publishable ke
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL | publik |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon/publishable key | publik, dilindungi RLS |
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role/secret key | **rahasia**; centang *Sensitive*; hanya Environment *Production* (dan Preview bila perlu) |
+   | `NEXT_PUBLIC_IDLE_MENIT` | *(opsional)* menit, bawaan `5` | batas tidak aktif; perubahan perlu deploy ulang |
 
    Jangan memberi awalan `NEXT_PUBLIC_` pada kunci rahasia, jangan commit `.env.local`.
 3. Deploy. Setelah selesai, buka `https://<domain>/api/health`; harus menjawab `{"status":"ok"}`.
@@ -101,7 +104,10 @@ curl -s "https://<project>.supabase.co/rest/v1/slot_terisi?select=*" -H "apikey:
 - [ ] **Cadangan data**: paket Free tidak menyediakan unduhan backup. Ekspor tabel `mahasiswa`, `kelompok`,
   `kelas`, `slot`, `pendaftaran` (Table Editor > Export CSV) sebelum buka.
 - [ ] **Akun ketua sudah dibuat dan sudah dibagikan** minimal sehari sebelumnya, supaya login tidak menumpuk di menit pertama.
-  Minta ketua **login lebih awal** dan tetap membuka halamannya (sesi tersimpan di perangkat).
+  Ingat batas tidak aktif: ketua yang menunggu tanpa menyentuh layar akan keluar otomatis setelah 5 menit. Pilih salah satu:
+  minta ketua login **tepat sebelum** pendaftaran dibuka (maksimal beberapa menit), atau naikkan `NEXT_PUBLIC_IDLE_MENIT`
+  (mis. `30`) khusus hari pendaftaran lalu deploy ulang dan kembalikan sesudahnya. Jika semua ketua terpaksa login ulang
+  di menit yang sama, Anda akan melihat pembatasan 429 (lihat bagian bawah).
 - [ ] **Bagi jadwal buka per kelas** (mis. tiap kelas selisih 30-60 menit). Ini pengaman paling efektif: batas
   laju Supabase per IP tidak bisa diatasi dari sisi aplikasi jika ratusan orang di jaringan kampus yang sama
   menekan tombol serentak.

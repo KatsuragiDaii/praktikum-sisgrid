@@ -1,17 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { hapusAktivitas } from "@/lib/idle";
 
 export type StatusSesi = "" | "lain" | "keluar";
 
 // Dipakai tombol "Keluar" di tab ini sendiri, supaya keluar yang disengaja tidak dianggap "sesi berakhir di tab lain".
 let keluarSendiri = false;
-export async function keluarAkun() {
+// scope "global" (bawaan Supabase) mengeluarkan akun ini dari SEMUA perangkat; "local" hanya browser ini.
+export async function keluarAkun(scope: "global" | "local" = "global") {
   keluarSendiri = true;
   try {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope });
   } finally {
     keluarSendiri = false;
+    hapusAktivitas();
   }
 }
 

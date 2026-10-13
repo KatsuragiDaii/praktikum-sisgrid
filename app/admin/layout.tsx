@@ -7,6 +7,8 @@ import { Poppins } from "next/font/google";
 import { supabase } from "@/lib/supabase";
 import { useSesiBerubah, keluarAkun } from "@/lib/useSesiBerubah";
 import PeringatanSesi from "@/components/PeringatanSesi";
+import PeringatanIdle from "@/components/PeringatanIdle";
+import { useIdleLogout } from "@/lib/useIdleLogout";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -38,6 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [siap, setSiap] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
   const statusSesi = useSesiBerubah(uid);
+  const idle = useIdleLogout(uid !== null);
 
   // Hanya admin yang boleh melihat halaman di bawah /admin
   useEffect(() => {
@@ -74,6 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className={`flex h-screen bg-[#f8f9fc] ${poppins.className} overflow-hidden`}>
       <PeringatanSesi status={statusSesi} />
+      <PeringatanIdle sisaDetik={idle.sisaDetik} onLanjut={idle.lanjut} />
       {/* SIDEBAR */}
       <aside className="w-64 bg-[#23424A] flex flex-col relative z-20 hidden md:flex">
         <div>

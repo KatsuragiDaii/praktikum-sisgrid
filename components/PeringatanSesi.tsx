@@ -22,7 +22,7 @@ export default function PeringatanSesi({ status }: { status: StatusSesi }) {
         <p id="isi-sesi" className="mt-2 text-sm leading-relaxed text-gray-600">
           {lain
             ? "Anda masuk dengan akun lain di tab atau jendela lain pada browser ini. Login disimpan per browser, jadi tab ini tidak lagi mewakili akun yang tadi. Muat ulang untuk melihat akun yang sedang aktif. Untuk memakai dua akun sekaligus, gunakan jendela privat atau browser yang berbeda."
-            : "Anda sudah keluar dari akun ini di tab atau jendela lain. Silakan masuk kembali."}
+            : "Anda sudah keluar dari akun ini di tab atau jendela lain (atau keluar otomatis karena tidak ada aktivitas). Silakan masuk kembali."}
         </p>
         <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           {lain && (
