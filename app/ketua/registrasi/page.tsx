@@ -210,19 +210,19 @@ export default function DashboardKetua() {
 
   if (!isMounted) {
     return (
-      <div className={`min-h-screen bg-[#f8f9fc] flex items-center justify-center ${poppins.className}`}>
+      <div className={`tinggi-min-layar bg-[#f8f9fc] flex items-center justify-center ${poppins.className}`}>
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#23424A]"></div>
       </div>
     );
   }
 
   return (
-    <div className={`flex h-screen bg-[#f8f9fc] ${poppins.className} overflow-hidden`}>
+    <div className={`flex tinggi-layar bg-[#f8f9fc] ${poppins.className} overflow-hidden`}>
       <PeringatanSesi status={statusSesi} />
       <PeringatanIdle sisaDetik={idle.sisaDetik} onLanjut={idle.lanjut} />
       
-      {/* SIDEBAR KIRI (DESKTOP) */}
-      <aside className="hidden md:flex w-64 bg-[#23424A] flex-col shrink-0 relative z-20 overflow-hidden">
+      {/* SIDEBAR KIRI (laptop/desktop, lebar >= 1024px) */}
+      <aside className="hidden lg:flex w-64 bg-[#23424A] flex-col shrink-0 relative z-20 overflow-hidden">
         
         {/* LOGO */}
         <div className="p-8 pb-4 flex items-center justify-center">
@@ -281,7 +281,7 @@ export default function DashboardKetua() {
       </aside>
 
       {/* AREA UTAMA */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
+      <div className="flex-1 flex flex-col tinggi-layar overflow-hidden min-w-0">
         
         {/* HEADER */}
         <header className="bg-[#f8f9fc] px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between border-b border-gray-200/60 z-10 shrink-0">
@@ -291,7 +291,7 @@ export default function DashboardKetua() {
             ) : (
               <IkonKelompok className="w-7 h-7 sm:w-8 sm:h-8 text-[#0a1e2b] shrink-0" />
             )}
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0a1e2b] tracking-tight leading-tight pb-1">
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-[#0a1e2b] tracking-tight leading-tight pb-1">
               {activeMenu === "jadwal" ? "Registrasi Praktikum" : "Profil & Kelompok"}
             </h1>
           </div>
@@ -305,24 +305,24 @@ export default function DashboardKetua() {
                 await keluarAkun();
                 router.replace("/login");
               }}
-              className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm cursor-pointer"
+              className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 sm:py-2 rounded-lg transition-colors shadow-sm cursor-pointer"
             >
               Keluar
             </button>
           </div>
         </header>
 
-        {/* Navigasi layar kecil (Mobile) */}
-        <nav className="md:hidden flex justify-between px-4 py-2 bg-white border-b border-gray-200/60 shrink-0">
+        {/* Navigasi layar HP dan tablet (sidebar disembunyikan di bawah lg) */}
+        <nav className="lg:hidden flex gap-2 px-4 sm:px-8 py-2 bg-white border-b border-gray-200/60 shrink-0">
            <button 
               onClick={() => setActiveMenu("jadwal")}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold cursor-pointer ${activeMenu === "jadwal" ? "bg-[#23424A] text-white" : "text-[#23424A] bg-gray-100"}`}
+              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-full text-sm font-semibold cursor-pointer ${activeMenu === "jadwal" ? "bg-[#23424A] text-white" : "text-[#23424A] bg-gray-100"}`}
            >
               War Ticket
            </button>
            <button 
               onClick={() => setActiveMenu("profil")} 
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold cursor-pointer ${activeMenu === "profil" ? "bg-[#23424A] text-white" : "text-[#23424A] bg-gray-100"}`}
+              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-full text-sm font-semibold cursor-pointer ${activeMenu === "profil" ? "bg-[#23424A] text-white" : "text-[#23424A] bg-gray-100"}`}
            >
               Profil Akun
            </button>
@@ -347,7 +347,7 @@ export default function DashboardKetua() {
                     
                     <div className="z-10 w-full md:w-auto text-center md:text-left flex-1">
                       <p className="text-sm font-bold text-emerald-100 mb-1 uppercase tracking-wider">Status Registrasi</p>
-                      <h2 className="text-3xl font-black tracking-tight">BERHASIL</h2>
+                      <h2 className="text-2xl sm:text-3xl font-black tracking-tight">BERHASIL</h2>
                     </div>
 
                     <div className="bg-white/20 rounded-xl p-4 md:px-6 backdrop-blur-sm border border-white/30 z-10 w-full md:w-auto flex items-center justify-between gap-8 shadow-sm">
@@ -368,7 +368,7 @@ export default function DashboardKetua() {
                     </div>
                     <div className="z-10 text-center md:text-left">
                         <p className="text-sm font-bold text-amber-100 mb-1 uppercase tracking-wider">Status Registrasi</p>
-                        <h2 className="text-3xl font-black tracking-tight">BELUM MEMILIH</h2>
+                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight">BELUM MEMILIH</h2>
                         <p className="text-sm sm:text-base text-orange-50 mt-2 font-medium">Segera pilih jadwal di panel bawah sebelum kuota habis!</p>
                     </div>
                   </div>
@@ -380,7 +380,7 @@ export default function DashboardKetua() {
                 <div className={kartu + " flex flex-col h-full relative"}>
                   <div className="border-b border-gray-100 pb-5 mb-5 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
                     <div>
-                      <h2 className="text-2xl font-extrabold text-[#0a1e2b]">Pilih Jadwal Praktikum</h2>
+                      <h2 className="text-xl sm:text-2xl font-extrabold text-[#0a1e2b]">Pilih Jadwal Praktikum</h2>
                       <p className="text-sm font-medium text-gray-500 mt-1">Pilih satu shift yang tersedia untuk kelompok Anda.</p>
                     </div>
                     <div className="flex gap-4 text-xs font-bold text-gray-600">
@@ -392,7 +392,7 @@ export default function DashboardKetua() {
                   <div className="relative flex-1">
                     {jadwalTerpilih && (
                       <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                        <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 text-center max-w-sm">
+                        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-200 text-center max-w-sm mx-4">
                            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-emerald-50">
                              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                            </div>
@@ -410,7 +410,7 @@ export default function DashboardKetua() {
                       </div>
                     )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                       {hariList.map((hari) => (
                         <div key={hari} className="border border-gray-200 rounded-xl overflow-hidden flex flex-col bg-gray-50/50">
                           <div className="bg-gray-100 py-2.5 text-center border-b border-gray-200">
@@ -470,10 +470,10 @@ export default function DashboardKetua() {
           {/* HALAMAN 2: PROFIL AKUN & KELOMPOK           */}
           {/* ========================================= */}
           {activeMenu === "profil" && (
-            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 pb-20">
+            <div className="max-w-6xl mx-auto grid grid-cols-1 xl:grid-cols-12 gap-6 pb-20">
               
               {/* KOLOM KIRI (Ganti Password & Info Akun) */}
-              <div className="lg:col-span-5">
+              <div className="xl:col-span-5">
                 <div className={kartu + " !p-0 overflow-hidden"}>
                   <div className="bg-[#23424A] p-6 text-white text-center">
                      <h3 className="text-xl font-extrabold mb-1">Profil Akun</h3>
@@ -494,7 +494,7 @@ export default function DashboardKetua() {
                       placeholder="Password lama" 
                       value={pwLama} 
                       onChange={(e) => setPwLama(e.target.value)} 
-                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-800 placeholder-gray-500 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A]" 
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base lg:text-sm font-semibold text-gray-800 placeholder-gray-500 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A]" 
                     />
   
                     <input 
@@ -504,7 +504,7 @@ export default function DashboardKetua() {
                       placeholder="Password baru (min. 8)" 
                       value={pwBaru} 
                       onChange={(e) => setPwBaru(e.target.value)} 
-                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-800 placeholder-gray-500 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A]" 
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base lg:text-sm font-semibold text-gray-800 placeholder-gray-500 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A]" 
                     />
   
                     <input 
@@ -513,7 +513,7 @@ export default function DashboardKetua() {
                       placeholder="Ulangi password baru" 
                       value={pwUlang} 
                       onChange={(e) => setPwUlang(e.target.value)} 
-                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-800 placeholder-gray-500 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A]" 
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base lg:text-sm font-semibold text-gray-800 placeholder-gray-500 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A]" 
                     />
                   </div>
                     
@@ -529,7 +529,7 @@ export default function DashboardKetua() {
               </div>
 
               {/* KOLOM KANAN (Daftar Anggota Kelompok) */}
-              <div className="lg:col-span-7">
+              <div className="xl:col-span-7">
                 <div className={kartu + " !p-0 overflow-hidden"}>
                   <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                     <div>
@@ -573,7 +573,8 @@ export default function DashboardKetua() {
 
       {/* MODAL KONFIRMASI JADWAL (Hanya muncul saat memilih jadwal) */}
       {isModalOpen && targetJadwal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm">
+         <div className="flex min-h-full items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden">
             <div className="bg-[#23424A] p-6 text-center">
                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-white/20">
@@ -582,7 +583,7 @@ export default function DashboardKetua() {
                <h3 className="text-xl font-extrabold text-white">Konfirmasi Jadwal</h3>
             </div>
             
-            <div className="p-8 text-center space-y-4 bg-gray-50">
+            <div className="p-6 sm:p-8 text-center space-y-4 bg-gray-50">
               <p className="text-gray-600 font-medium text-sm leading-relaxed">
                 Kunci jadwal praktikum untuk <strong className="text-gray-800">Kelompok {profilKetua.kelompok}</strong> pada:
               </p>
@@ -597,7 +598,7 @@ export default function DashboardKetua() {
                   Tenang, Anda tetap bisa membatalkan dan memilih ulang jadwal lain jika melakukan kesalahan.
               </p>
               
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3 sm:gap-4 pt-4">
                 <button onClick={() => setIsModalOpen(false)} disabled={isLoading} className="flex-1 py-3 rounded-xl border border-gray-300 text-gray-600 font-bold hover:bg-white transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
                   Batal
                 </button>
@@ -611,6 +612,7 @@ export default function DashboardKetua() {
               </div>
             </div>
           </div>
+         </div>
         </div>
       )}
     </div>

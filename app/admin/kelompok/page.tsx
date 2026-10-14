@@ -20,10 +20,13 @@ function pesanGalat(msg: string) {
   return msg;
 }
 
+// Sel tabel: berjarak di tabel (>= 1280px), tanpa jarak sendiri saat menjadi kartu.
+const sel = "py-3 px-4 max-xl:p-0";
+
 const tombolBahaya =
-  "text-red-600 hover:text-red-800 font-bold text-xs underline decoration-red-200 hover:decoration-red-600 underline-offset-2 transition-colors cursor-pointer";
+  "max-xl:py-2.5 max-xl:px-2 text-red-600 hover:text-red-800 font-bold text-xs underline decoration-red-200 hover:decoration-red-600 underline-offset-2 transition-colors cursor-pointer";
 const tombolTeks =
-  "text-gray-500 hover:text-[#23424A] font-bold text-xs underline decoration-gray-300 hover:decoration-[#23424A] underline-offset-2 transition-colors cursor-pointer";
+  "max-xl:py-2.5 max-xl:px-2 text-gray-500 hover:text-[#23424A] font-bold text-xs underline decoration-gray-300 hover:decoration-[#23424A] underline-offset-2 transition-colors cursor-pointer";
 
 export default function KelompokPage() {
   const { notif, tampilkan } = useNotif();
@@ -285,9 +288,9 @@ export default function KelompokPage() {
 
   const jmlMahasiswa = klp.reduce((a, k) => a + k.anggota.length, 0);
   const jmlTerdaftar = klp.filter((k) => k.jadwal).length;
-  const kartu = "bg-white rounded-2xl border border-gray-200 p-5 sm:p-8 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]";
+  const kartu = "bg-white rounded-2xl border border-gray-200 p-4 sm:p-8 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]";
   const kontrol =
-    "rounded-lg border border-gray-300 bg-gray-50 py-2.5 px-3 text-sm text-gray-800 focus:outline-none focus:border-[#23424A] focus:bg-white transition-colors cursor-pointer";
+    "rounded-lg border border-gray-300 bg-gray-50 py-2.5 px-3 text-base lg:text-sm text-gray-800 focus:outline-none focus:border-[#23424A] focus:bg-white transition-colors cursor-pointer";
 
   return (
     <>
@@ -297,20 +300,20 @@ export default function KelompokPage() {
       <div className={kartu}>
         <div className="flex items-center gap-3 mb-6">
           {/* Ikon person-plus-fill dari Bootstrap */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-8 h-8 text-[#23424A] shrink-0" viewBox="0 0 16 16">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-7 h-7 sm:w-8 sm:h-8 text-[#23424A] shrink-0" viewBox="0 0 16 16">
             <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
             <path fillRule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
           </svg>
-          <h2 className="text-2xl font-extrabold text-[#0a1e2b]">Tambah Mahasiswa dan Akun Ketua</h2>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-[#0a1e2b]">Tambah Mahasiswa dan Akun Ketua</h2>
         </div>
-        <div role="tablist" aria-label="Cara menambah mahasiswa" className="inline-flex rounded-lg bg-gray-100 p-1 mb-5 text-sm font-bold">
+        <div role="tablist" aria-label="Cara menambah mahasiswa" className="flex sm:inline-flex rounded-lg bg-gray-100 p-1 mb-5 text-sm font-bold">
           {([["file", "Unggah Excel/CSV"], ["teks", "Ketik manual"]] as const).map(([m, label]) => (
             <button
               key={m}
               role="tab"
               aria-selected={mode === m}
               onClick={() => setMode(m)}
-              className={`px-4 py-1.5 rounded-md transition-colors cursor-pointer ${mode === m ? "bg-white text-[#23424A] shadow-sm" : "text-gray-500 hover:text-[#23424A]"}`}
+              className={`flex-1 sm:flex-none px-4 py-2.5 sm:py-1.5 rounded-md transition-colors cursor-pointer ${mode === m ? "bg-white text-[#23424A] shadow-sm" : "text-gray-500 hover:text-[#23424A]"}`}
             >
               {label}
             </button>
@@ -323,7 +326,7 @@ export default function KelompokPage() {
           <>
             <p className="text-sm font-medium text-gray-600 mb-4 leading-relaxed">
               Satu baris per mahasiswa, pisahkan dengan koma:{" "}
-              <code className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded font-mono">nim, nama, kelas, kelompok, ketua(1/0), password</code>
+              <code className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded font-mono break-words">nim, nama, kelas, kelompok, ketua(1/0), password</code>
               <br />
               <span className="text-gray-500 text-xs">
                 Contoh: 1101230001, Budi, TE-45, A, 1, sandi12345. Kelompok ditulis dengan huruf (A, B, C, ...). Password hanya diisi untuk ketua (minimal 8 karakter, tanpa koma).
@@ -335,13 +338,13 @@ export default function KelompokPage() {
               onChange={(e) => setTeks(e.target.value)}
               placeholder="Masukkan data CSV di sini..."
               rows={6}
-              className="w-full min-h-[140px] rounded-xl border border-gray-300 bg-gray-50 p-4 font-mono text-sm text-gray-800 focus:outline-none focus:border-[#23424A] focus:bg-white transition-colors resize-y"
+              className="w-full min-h-[140px] rounded-xl border border-gray-300 bg-gray-50 p-3 sm:p-4 font-mono text-base lg:text-sm text-gray-800 focus:outline-none focus:border-[#23424A] focus:bg-white transition-colors resize-y"
             />
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex sm:justify-end">
               <button
                 onClick={impor}
                 disabled={menyimpan || !teks.trim()}
-                className="bg-[#23424A] hover:bg-[#162b31] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow-sm"
+                className="w-full sm:w-auto bg-[#23424A] hover:bg-[#162b31] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 sm:py-2.5 px-6 rounded-lg transition-colors shadow-sm"
               >
                 {menyimpan ? "Menyimpan..." : "Simpan Data"}
               </button>
@@ -355,11 +358,11 @@ export default function KelompokPage() {
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             {/* Ikon 2 Orang dari Bootstrap */}
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-8 h-8 text-[#23424A] shrink-0" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-7 h-7 sm:w-8 sm:h-8 text-[#23424A] shrink-0" viewBox="0 0 16 16">
               <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
             </svg>
             <div>
-              <h2 className="text-2xl font-extrabold text-[#0a1e2b]">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#0a1e2b]">
                 Daftar Kelompok <span className="text-gray-400 text-lg font-bold ml-1">({klp.length})</span>
               </h2>
               <p className="text-xs font-medium text-gray-500">
@@ -387,7 +390,7 @@ export default function KelompokPage() {
                 placeholder="Cari NIM, nama, kelas..."
                 className={`${kontrol} w-full pr-10`}
               />
-              <div className="absolute right-3 top-3 text-gray-400">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -396,10 +399,11 @@ export default function KelompokPage() {
           </div>
         </div>
 
-        <div className="border border-gray-200 rounded-xl overflow-hidden">
-          <div className="overflow-auto max-h-[560px]">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="sticky top-0 bg-gray-100 text-gray-700 shadow-sm z-10">
+        {/* Layar >= 1280px: tabel. HP dan tablet: setiap kelompok menjadi satu kartu supaya tidak perlu menggeser ke samping. */}
+        <div className="xl:border xl:border-gray-200 xl:rounded-xl xl:overflow-hidden">
+          <div className="xl:overflow-auto xl:max-h-[560px]">
+            <table className="block xl:table w-full text-left text-sm xl:whitespace-nowrap">
+              <thead className="hidden xl:table-header-group sticky top-0 bg-gray-100 text-gray-700 shadow-sm z-10">
                 <tr>
                   <th className="py-3 px-4 font-bold border-b border-gray-200">Kelas</th>
                   <th className="py-3 px-4 font-bold border-b border-gray-200">Kelompok</th>
@@ -410,10 +414,10 @@ export default function KelompokPage() {
                   <th className="py-3 px-4 border-b border-gray-200"><span className="sr-only">Detail</span></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="max-xl:flex max-xl:flex-col max-xl:gap-3 divide-y divide-gray-100 max-xl:divide-y-0 bg-white">
                 {tampil.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-8 text-center text-gray-400 font-medium italic">
+                  <tr className="max-xl:block">
+                    <td colSpan={7} className="py-8 text-center text-gray-400 font-medium italic max-xl:block">
                       {klp.length === 0 ? "Belum ada kelompok. Tambahkan mahasiswa lewat form di atas." : "Tidak ada kelompok yang cocok."}
                     </td>
                   </tr>
@@ -425,12 +429,17 @@ export default function KelompokPage() {
                     const huruf = hurufKelompok(k.nomor);
                     return (
                       <Fragment key={k.id}>
-                        <tr className="hover:bg-gray-50 transition-colors">
-                          <td className="py-3 px-4 text-gray-600 font-medium">{k.kelas}</td>
-                          <td className="py-3 px-4">
+                        <tr
+                          className={`hover:bg-gray-50 transition-colors max-xl:flex max-xl:flex-wrap max-xl:items-center max-xl:gap-x-3 max-xl:gap-y-1 max-xl:rounded-xl max-xl:border max-xl:border-gray-200 max-xl:bg-white max-xl:p-4 ${
+                            buka ? "max-xl:rounded-b-none max-xl:border-b-0" : ""
+                          }`}
+                        >
+                          <td className={`${sel} max-xl:order-1 max-xl:font-bold max-xl:text-gray-800 text-gray-600 font-medium`}>{k.kelas}</td>
+                          <td className={`${sel} max-xl:order-2`}>
                             <span className="bg-gray-100 text-gray-700 font-bold px-2.5 py-1 rounded border border-gray-200">{huruf}</span>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className={`${sel} max-xl:order-4 max-xl:basis-full max-xl:mt-1`}>
+                            <span className="xl:hidden mr-2 text-xs font-semibold text-gray-400">Ketua</span>
                             {ketua ? (
                               <>
                                 <span className="text-gray-800 font-bold">{ketua.nama}</span>
@@ -440,7 +449,7 @@ export default function KelompokPage() {
                               <span className="text-amber-600 font-semibold text-xs">Belum ada ketua</span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-center">
+                          <td className={`${sel} max-xl:order-3 max-xl:ml-auto text-center`}>
                             <span
                               title={n >= 2 && n <= 6 ? undefined : "Jumlah anggota harus 2-6 agar kelompok bisa mendaftar"}
                               className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
@@ -452,16 +461,18 @@ export default function KelompokPage() {
                               {n} orang
                             </span>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className={`${sel} max-xl:order-5 max-xl:basis-full sm:max-xl:basis-auto max-xl:mt-1`}>
+                            <span className="xl:hidden mr-2 text-xs font-semibold text-gray-400">Jadwal</span>
                             {k.jadwal ? (
                               <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-bold">{k.jadwal}</span>
                             ) : (
                               <span className="text-gray-400 text-xs font-medium">Belum memilih</span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-center">
+                          <td className={`${sel} max-xl:order-6 max-xl:mt-1 text-center`}>
                             {ketua ? (
-                              <div className="flex items-center justify-center gap-2">
+                              <div className="flex items-center justify-center max-xl:justify-start gap-2">
+                                <span className="xl:hidden mr-0.5 text-xs font-semibold text-gray-400">Akun ketua</span>
                                 <div
                                   className={`w-2 h-2 rounded-full ${ketua.user_id ? "bg-emerald-500" : "bg-gray-300"}`}
                                   title={ketua.user_id ? "Akun aktif" : "Belum punya akun"}
@@ -474,13 +485,13 @@ export default function KelompokPage() {
                               <span className="text-gray-300">-</span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-right">
+                          <td className={`${sel} max-xl:order-7 max-xl:ml-auto max-xl:mt-1 text-right`}>
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 onClick={() => setHapus({ jenis: "kelompok", k })}
                                 aria-label={`Hapus kelompok ${huruf} ${k.kelas}`}
                                 title="Hapus kelompok"
-                                className="text-gray-400 hover:text-red-600 p-1 rounded transition-colors cursor-pointer"
+                                className="text-gray-400 hover:text-red-600 p-1 max-xl:p-2.5 rounded transition-colors cursor-pointer"
                               >
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -490,7 +501,7 @@ export default function KelompokPage() {
                                 onClick={() => setTerbuka(buka ? null : k.id)}
                                 aria-expanded={buka}
                                 aria-label={`${buka ? "Tutup" : "Lihat"} anggota ${k.kelas} kelompok ${huruf}`}
-                                className="text-gray-400 hover:text-[#23424A] p-1 rounded transition-colors cursor-pointer"
+                                className="text-gray-400 hover:text-[#23424A] p-1 max-xl:p-2.5 rounded transition-colors cursor-pointer"
                               >
                                 <svg className={`w-5 h-5 transition-transform ${buka ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -500,30 +511,32 @@ export default function KelompokPage() {
                           </td>
                         </tr>
                         {buka && (
-                          <tr className="bg-gray-50">
-                            <td colSpan={7} className="px-4 py-3">
+                          <tr className="bg-gray-50 max-xl:block max-xl:-mt-3 max-xl:rounded-b-xl max-xl:border max-xl:border-t-0 max-xl:border-gray-200">
+                            <td colSpan={7} className="px-4 py-3 max-xl:block">
                               {n === 0 ? (
                                 <p className="text-xs text-gray-400 italic">Kelompok ini belum punya anggota.</p>
                               ) : (
                                 <ul className="divide-y divide-gray-200/70">
                                   {k.anggota.map((a) => (
-                                    <li key={a.nim} className="flex items-center gap-4 py-2">
-                                      <span className="text-xs font-semibold text-gray-700 w-32 shrink-0 tracking-wide">{a.nim}</span>
-                                      <span className="text-gray-800 font-semibold flex-1">{a.nama}</span>
-                                      {a.is_ketua ? (
-                                        <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-bold">Ketua</span>
-                                      ) : (
-                                        <button className={tombolTeks} onClick={() => setCalonKetua({ nim: a.nim, nama: a.nama })}>
-                                          Jadikan Ketua
+                                    <li key={a.nim} className="flex flex-wrap items-center gap-x-4 gap-y-0 py-2">
+                                      <span className="text-xs font-semibold text-gray-700 w-24 sm:w-32 shrink-0 tracking-wide">{a.nim}</span>
+                                      <span className="text-gray-800 font-semibold flex-1 min-w-0 break-words">{a.nama}</span>
+                                      <div className="flex items-center justify-end gap-3 max-sm:basis-full">
+                                        {a.is_ketua ? (
+                                          <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-bold">Ketua</span>
+                                        ) : (
+                                          <button className={tombolTeks} onClick={() => setCalonKetua({ nim: a.nim, nama: a.nama })}>
+                                            Jadikan Ketua
+                                          </button>
+                                        )}
+                                        <button
+                                          className={`${tombolBahaya} w-14 text-right cursor-pointer`}
+                                          aria-label={`Hapus ${a.nama}`}
+                                          onClick={() => setHapus({ jenis: "mhs", m: a, k })}
+                                        >
+                                          Hapus
                                         </button>
-                                      )}
-                                      <button
-                                        className={`${tombolBahaya} w-14 text-right cursor-pointer`}
-                                        aria-label={`Hapus ${a.nama}`}
-                                        onClick={() => setHapus({ jenis: "mhs", m: a, k })}
-                                      >
-                                        Hapus
-                                      </button>
+                                      </div>
                                     </li>
                                   ))}
                                 </ul>
@@ -547,9 +560,9 @@ export default function KelompokPage() {
             </p>
             <ul className="mt-2 divide-y divide-amber-200/70">
               {tanpaKelompok.map((a) => (
-                <li key={a.nim} className="flex items-center gap-4 py-1.5">
-                  <span className="font-semibold w-32 shrink-0 tracking-wide">{a.nim}</span>
-                  <span className="flex-1 font-semibold text-gray-800">{a.nama}</span>
+                <li key={a.nim} className="flex flex-wrap items-center gap-x-4 py-1.5">
+                  <span className="font-semibold w-24 sm:w-32 shrink-0 tracking-wide">{a.nim}</span>
+                  <span className="flex-1 min-w-0 break-words font-semibold text-gray-800">{a.nama}</span>
                   <button className={tombolBahaya} aria-label={`Hapus ${a.nama}`} onClick={() => setHapus({ jenis: "mhs", m: a, k: null })}>
                     Hapus
                   </button>
@@ -564,7 +577,8 @@ export default function KelompokPage() {
       
       {/* --- MODAL RESET PASSWORD --- */}
       {resetAkun && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm">
+         <div className="flex min-h-full items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden">
             <div className="bg-[#23424A] p-6 text-center">
                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-white/20">
@@ -575,7 +589,7 @@ export default function KelompokPage() {
                </div>
                <h3 className="text-xl font-extrabold text-white">Atur Password</h3>
             </div>
-            <form onSubmit={jalankanReset} className="p-8 text-center space-y-5">
+            <form onSubmit={jalankanReset} className="p-6 sm:p-8 text-center space-y-5">
               <p className="text-gray-600 font-medium text-sm leading-relaxed">
                 Masukkan password baru untuk <strong className="text-gray-800">{resetAkun.nama}</strong> ({resetAkun.nim}).
               </p>
@@ -587,11 +601,11 @@ export default function KelompokPage() {
                   value={pwBaru}
                   onChange={(e) => setPwBaru(e.target.value)}
                   placeholder="Password (min. 8 karakter)"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-800 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A] text-center"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base lg:text-sm font-semibold text-gray-800 focus:outline-none focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A] text-center"
                   autoFocus
                 />
               </div>
-              <div className="flex gap-4 pt-2">
+              <div className="flex gap-3 sm:gap-4 pt-2">
                 <button
                   type="button"
                   onClick={() => { setResetAkun(null); setPwBaru(""); }}
@@ -614,13 +628,15 @@ export default function KelompokPage() {
               </div>
             </form>
           </div>
+         </div>
         </div>
       )}
       {/* ---------------------------- */}
 
       {/* --- MODAL JADIKAN KETUA --- */}
       {calonKetua && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm">
+         <div className="flex min-h-full items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden">
             <div className="bg-[#23424A] p-6 text-center">
                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-white/20">
@@ -628,7 +644,7 @@ export default function KelompokPage() {
                </div>
                <h3 className="text-xl font-extrabold text-white">Jadikan Ketua?</h3>
             </div>
-            <div className="p-8 text-center space-y-4">
+            <div className="p-6 sm:p-8 text-center space-y-4">
               <p className="text-gray-600 font-medium text-sm leading-relaxed">
                 Jadikan <strong className="text-gray-800">{calonKetua.nama}</strong> sebagai ketua kelompok ini?
               </p>
@@ -636,7 +652,7 @@ export default function KelompokPage() {
                 Ketua sebelumnya (jika ada) akan menjadi anggota biasa dan tidak bisa lagi melakukan pendaftaran jadwal.
               </p>
               
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3 sm:gap-4 pt-4">
                 <button
                   type="button"
                   onClick={() => setCalonKetua(null)}
@@ -660,6 +676,7 @@ export default function KelompokPage() {
               </div>
             </div>
           </div>
+         </div>
         </div>
       )}
       {/* ---------------------------- */}

@@ -14,8 +14,9 @@ export default function PeringatanSesi({ status }: { status: StatusSesi }) {
   if (!status) return null;
   const lain = status === "lain";
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4" role="alertdialog" aria-modal="true" aria-labelledby="judul-sesi" aria-describedby="isi-sesi">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/60" role="alertdialog" aria-modal="true" aria-labelledby="judul-sesi" aria-describedby="isi-sesi">
+     <div className="flex min-h-full items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-6 shadow-2xl">
         <h2 id="judul-sesi" className="text-lg font-extrabold text-[#0a1e2b]">
           {lain ? "Akun di browser ini sudah berganti" : "Sesi login sudah berakhir"}
         </h2>
@@ -26,7 +27,7 @@ export default function PeringatanSesi({ status }: { status: StatusSesi }) {
         </p>
         <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           {lain && (
-            <button type="button" onClick={() => router.push("/login")} className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+            <button type="button" onClick={() => router.push("/login")} className="cursor-pointer rounded-lg border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
               Ke halaman login
             </button>
           )}
@@ -34,12 +35,13 @@ export default function PeringatanSesi({ status }: { status: StatusSesi }) {
             ref={utama}
             type="button"
             onClick={() => (lain ? window.location.reload() : router.push("/login"))}
-            className="cursor-pointer rounded-lg bg-[#23424A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a3238]"
+            className="cursor-pointer rounded-lg bg-[#23424A] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1a3238]"
           >
             {lain ? "Muat ulang halaman" : "Ke halaman login"}
           </button>
         </div>
       </div>
+     </div>
     </div>
   );
 }

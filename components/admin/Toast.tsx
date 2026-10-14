@@ -27,7 +27,7 @@ export function Toast({ notif }: { notif: Notif }) {
   return (
     <div
       role="status"
-      className={`fixed top-24 right-4 sm:right-8 z-50 max-w-md border-l-4 p-4 rounded shadow-md flex items-start gap-3 ${gaya}`}
+      className={`fixed top-20 left-4 right-4 sm:top-24 sm:left-auto sm:right-8 z-[60] sm:max-w-md border-l-4 p-4 rounded shadow-md flex items-start gap-3 ${gaya}`}
     >
       <svg className="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         {notif.ok ? (

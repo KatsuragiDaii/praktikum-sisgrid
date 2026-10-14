@@ -145,7 +145,7 @@ export default function ImporFile({ nimAda, nimBerakun, simpan, tampilkan }: Pro
             const f = e.dataTransfer.files?.[0];
             if (f) pilihFile(f);
           }}
-          className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-[#23424A] ${
+          className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 sm:px-6 py-8 sm:py-10 text-center cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-[#23424A] ${
             seret ? "border-[#23424A] bg-[#23424A]/5" : "border-gray-300 bg-gray-50 hover:border-[#23424A]"
           }`}
         >
@@ -218,13 +218,13 @@ export default function ImporFile({ nimAda, nimBerakun, simpan, tampilkan }: Pro
           </>
         )}
 
-        <div className="flex flex-wrap justify-end gap-3">
+        <div className="flex flex-col-reverse sm:flex-row sm:flex-wrap sm:justify-end gap-3">
           {ok.length > 0 && (
-            <button onClick={unduhAkun} className="bg-[#23424A] hover:bg-[#162b31] text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow-sm">
+            <button onClick={unduhAkun} className="bg-[#23424A] hover:bg-[#162b31] text-white font-bold py-3 sm:py-2.5 px-6 rounded-lg transition-colors shadow-sm">
               Unduh akun-ketua.csv
             </button>
           )}
-          <button onClick={ulang} className="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-2.5 px-6 rounded-lg transition-colors">
+          <button onClick={ulang} className="border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3 sm:py-2.5 px-6 rounded-lg transition-colors">
             Selesai
           </button>
         </div>
@@ -241,7 +241,7 @@ export default function ImporFile({ nimAda, nimBerakun, simpan, tampilkan }: Pro
           <span className="font-bold text-gray-800">{namaFile}</span>: {analisis.aktif.length} kelas, {analisis.kel} kelompok, {analisis.mhs} mahasiswa
           {" "}({analisis.baru} baru{analisis.ada > 0 ? `, ${analisis.ada} sudah ada dan akan diperbarui` : ""})
         </p>
-        <button onClick={ulang} disabled={tahap === "menyimpan"} className={`text-xs font-bold text-gray-500 hover:text-[#23424A] underline underline-offset-2`}>
+        <button onClick={ulang} disabled={tahap === "menyimpan"} className={`text-xs font-bold text-gray-500 hover:text-[#23424A] underline underline-offset-2 max-lg:py-2.5`}>
           Pilih file lain
         </button>
       </div>
@@ -275,12 +275,12 @@ export default function ImporFile({ nimAda, nimBerakun, simpan, tampilkan }: Pro
                 {k.masalah.some((m) => !m.galat) && <span className={`${chip} bg-amber-50 text-amber-700 border-amber-200`}>ada peringatan</span>}
               </summary>
               <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
-                <label className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                <label className="flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:gap-2 text-xs font-bold text-gray-600">
                   Nama kelas di sistem
                   <input
                     value={k.kelas}
                     onChange={(e) => ubahKelas(ci, e.target.value)}
-                    className="rounded-lg border border-gray-300 bg-gray-50 py-1.5 px-3 text-sm font-semibold text-gray-800 focus:outline-none focus:border-[#23424A] focus:bg-white"
+                    className="w-full sm:w-auto rounded-lg border border-gray-300 bg-gray-50 py-2.5 sm:py-1.5 px-3 text-base lg:text-sm font-semibold text-gray-800 focus:outline-none focus:border-[#23424A] focus:bg-white"
                   />
                 </label>
                 {k.masalah.filter((m) => !m.galat).map((m, i) => (
@@ -300,16 +300,16 @@ export default function ImporFile({ nimAda, nimBerakun, simpan, tampilkan }: Pro
                           const ketua = a.nim === g.ketuaNim;
                           return (
                             <li key={a.nim}>
-                              <label className={`flex items-center gap-2 rounded-md px-2 py-1 cursor-pointer text-sm ${ketua ? "bg-[#23424A]/5" : "hover:bg-gray-50"}`}>
+                              <label className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md px-2 py-2.5 lg:py-1 cursor-pointer text-sm ${ketua ? "bg-[#23424A]/5" : "hover:bg-gray-50"}`}>
                                 <input
                                   type="radio"
                                   name={`ketua-${ci}-${gi}`}
                                   checked={ketua}
                                   onChange={() => ubahKetua(ci, gi, a.nim)}
-                                  className="accent-[#23424A]"
+                                  className="accent-[#23424A] w-4 h-4 shrink-0"
                                   aria-label={`Jadikan ${a.nama} ketua`}
                                 />
-                                <span className={`flex-1 min-w-0 truncate ${ketua ? "font-bold text-gray-900" : "font-medium text-gray-700"}`}>{a.nama}</span>
+                                <span className={`flex-1 min-w-[8rem] break-words ${ketua ? "font-bold text-gray-900" : "font-medium text-gray-700"}`}>{a.nama}</span>
                                 <span className="font-mono text-[11px] text-gray-400">{a.nim}</span>
                                 {ketua && <span className={`${chip} bg-blue-50 text-blue-700 border-blue-200`}>Ketua</span>}
                                 {ketua && nimBerakun.has(a.nim) && <span className={`${chip} bg-gray-100 text-gray-500 border-gray-200`}>akun sudah ada</span>}
@@ -329,7 +329,7 @@ export default function ImporFile({ nimAda, nimBerakun, simpan, tampilkan }: Pro
       </div>
 
       <label className="flex items-start gap-2 text-sm font-medium text-gray-700 cursor-pointer">
-        <input type="checkbox" checked={buatAkun} onChange={(e) => setBuatAkun(e.target.checked)} className="mt-1 accent-[#23424A]" />
+        <input type="checkbox" checked={buatAkun} onChange={(e) => setBuatAkun(e.target.checked)} className="mt-0.5 w-4 h-4 shrink-0 accent-[#23424A]" />
         <span>
           Buatkan akun login untuk ketua dengan password acak. Username-nya NIM.
           {buatAkun && !butuhAkun && <span className="text-gray-500"> Semua ketua di file ini sudah punya akun, password mereka tidak diubah.</span>}
@@ -337,11 +337,11 @@ export default function ImporFile({ nimAda, nimBerakun, simpan, tampilkan }: Pro
         </span>
       </label>
 
-      <div className="flex justify-end">
+      <div className="flex sm:justify-end">
         <button
           onClick={simpanSemua}
           disabled={diblokir || tahap === "menyimpan"}
-          className="bg-[#23424A] hover:bg-[#162b31] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-6 rounded-lg transition-colors shadow-sm"
+          className="w-full sm:w-auto bg-[#23424A] hover:bg-[#162b31] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 sm:py-2.5 px-6 rounded-lg transition-colors shadow-sm"
         >
           {tahap === "menyimpan" ? "Menyimpan..." : `Simpan ${analisis.mhs} Mahasiswa`}
         </button>
