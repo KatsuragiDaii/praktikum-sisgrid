@@ -19,6 +19,17 @@
   }
 }
 
+/* Tinggi layar yang mengikuti bilah alamat browser HP (100vh di HP lebih tinggi dari area yang terlihat sehingga bagian
+   bawah halaman tertutup). Browser lama yang belum mengenal dvh memakai vh. */
+@utility tinggi-layar {
+  height: 100vh;
+  height: 100dvh;
+}
+@utility tinggi-min-layar {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

@@ -62,13 +62,13 @@ export default function JadwalPage() {
     <>
       <Toast notif={notif} />
 
-      <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-8 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+      <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-8 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
         <div className="flex items-center gap-3 mb-6">
           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="w-6 h-6 text-[#0a1e2b]" viewBox="0 0 16 16">
             <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
             <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
           </svg>
-          <h2 className="text-2xl font-extrabold text-[#0a1e2b]">Kuota Shift</h2>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-[#0a1e2b]">Kuota Shift</h2>
         </div>
 
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-5">
@@ -83,7 +83,7 @@ export default function JadwalPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
             <label htmlFor="massal" className="text-sm font-semibold text-gray-700">
               Samakan semua slot
             </label>
@@ -95,11 +95,11 @@ export default function JadwalPage() {
               onChange={(e) => setMassal(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && terapkanSemua()}
               placeholder="0"
-              className="w-16 h-9 rounded border border-gray-300 bg-white text-center font-bold text-gray-800 focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A] outline-none"
+              className="w-16 h-10 lg:h-9 text-base lg:text-sm rounded border border-gray-300 bg-white text-center font-bold text-gray-800 focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A] outline-none"
             />
             <button
               onClick={terapkanSemua}
-              className="bg-[#23424A] hover:bg-[#162b31] text-white text-sm font-bold h-9 px-4 rounded-lg transition-colors cursor-pointer shadow-sm"
+              className="bg-[#23424A] hover:bg-[#162b31] text-white text-sm font-bold h-10 lg:h-9 px-4 rounded-lg transition-colors cursor-pointer shadow-sm"
             >
               Terapkan
             </button>
@@ -110,7 +110,7 @@ export default function JadwalPage() {
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50 border-b border-gray-100 text-gray-700">
               <tr>
-                <th className="p-3 font-bold">Shift</th>
+                <th className="p-3 font-bold sticky left-0 z-10 bg-gray-50">Shift</th>
                 {HARI.map((h) => (
                   <th key={h} className="p-3 font-bold text-center">{h}</th>
                 ))}
@@ -119,7 +119,7 @@ export default function JadwalPage() {
             <tbody className="divide-y divide-gray-100 text-gray-600">
               {SHIFT.map((jam, i) => (
                 <tr key={jam}>
-                  <td className="p-3 whitespace-nowrap">
+                  <td className="p-3 whitespace-nowrap sticky left-0 z-10 bg-white border-r border-gray-100 md:border-r-0">
                     <span className="font-semibold text-gray-800">Shift {i + 1}</span>
                     <span className="block text-xs text-gray-400">{jam}</span>
                   </td>
@@ -138,7 +138,7 @@ export default function JadwalPage() {
                               aria-label={`Kuota ${hari} Shift ${i + 1}`}
                               onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
                               onBlur={(e) => e.target.value !== String(s.kuota) && simpanKuota(s.id, e.target.value)}
-                              className="w-14 h-9 rounded border border-gray-300 bg-white text-center font-bold text-gray-800 focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A] outline-none"
+                              className="w-14 h-10 lg:h-9 text-base lg:text-sm rounded border border-gray-300 bg-white text-center font-bold text-gray-800 focus:border-[#23424A] focus:ring-1 focus:ring-[#23424A] outline-none"
                             />
                             <span className={`text-[10px] font-bold mt-1 ${penuh ? "text-red-500" : "text-gray-400"}`}>
                               {penuh ? "penuh " : ""}isi:{s.terisi}
@@ -153,6 +153,7 @@ export default function JadwalPage() {
             </tbody>
           </table>
         </div>
+        <p className="md:hidden mt-2 text-xs font-medium text-gray-400">Geser tabel ke samping untuk melihat hari lainnya.</p>
       </div>
     </>
   );

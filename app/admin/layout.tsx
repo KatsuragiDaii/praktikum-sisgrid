@@ -68,18 +68,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!siap) {
     return (
-      <div className={`min-h-screen bg-[#f8f9fc] flex items-center justify-center ${poppins.className}`}>
+      <div className={`tinggi-min-layar bg-[#f8f9fc] flex items-center justify-center ${poppins.className}`}>
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#23424A]"></div>
       </div>
     );
   }
 
   return (
-    <div className={`flex h-screen bg-[#f8f9fc] ${poppins.className} overflow-hidden`}>
+    <div className={`flex tinggi-layar bg-[#f8f9fc] ${poppins.className} overflow-hidden`}>
       <PeringatanSesi status={statusSesi} />
       <PeringatanIdle sisaDetik={idle.sisaDetik} onLanjut={idle.lanjut} />
       {/* SIDEBAR */}
-      <aside className="w-64 bg-[#23424A] flex flex-col relative z-20 hidden md:flex">
+      <aside className="w-64 bg-[#23424A] flex-col relative z-20 hidden lg:flex shrink-0">
         <div>
           <div className="p-8 pb-10 flex items-center justify-center">
             <Image src="/logoadminsisgrid.svg" alt="LOGO SISGRID" width={150} height={150} className="object-contain" priority />
@@ -142,30 +142,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* AREA UTAMA */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
+      <div className="flex-1 flex flex-col tinggi-layar overflow-hidden min-w-0">
         <header className="bg-[#f8f9fc] px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between border-b border-gray-200/60 z-10 shrink-0">
           <div className="flex items-center gap-3 sm:gap-4 min-w-0">
             <aktif.Ikon className="w-7 h-7 sm:w-8 sm:h-8 text-[#0a1e2b] shrink-0" />
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0a1e2b] tracking-tight truncate">{aktif.judul}</h1>
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-[#0a1e2b] tracking-tight truncate">{aktif.judul}</h1>
           </div>
           <button
             onClick={async () => {
               await keluarAkun();
               router.replace("/login");
             }}
-            className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer shadow-sm shrink-0 ml-3"
+            className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 sm:py-2 rounded-lg transition-colors cursor-pointer shadow-sm shrink-0 ml-3"
           >
             Keluar
           </button>
         </header>
 
-        {/* Navigasi untuk layar kecil (sidebar disembunyikan di bawah md) */}
-        <nav className="md:hidden flex gap-2 px-4 py-2 bg-white border-b border-gray-200/60 shrink-0">
+        {/* Navigasi untuk layar HP dan tablet (sidebar disembunyikan di bawah lg) */}
+        <nav className="lg:hidden flex gap-2 px-4 sm:px-8 py-2 bg-white border-b border-gray-200/60 shrink-0">
           {MENU.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold ${
+              aria-current={href === aktif.href ? "page" : undefined}
+              className={`flex-1 sm:flex-none text-center px-4 py-2.5 rounded-full text-sm font-semibold ${
                 href === aktif.href ? "bg-[#23424A] text-white" : "text-[#23424A] bg-gray-100"
               }`}
             >

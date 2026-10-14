@@ -47,12 +47,13 @@ export default function ModalKonfirmasi({
   }, []);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm"
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm">
+     <div
+      className="flex min-h-full items-center justify-center p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget && !sibuk) onBatal();
       }}
-    >
+     >
       <div
         ref={kotak}
         role="dialog"
@@ -60,7 +61,7 @@ export default function ModalKonfirmasi({
         aria-labelledby="judul-modal"
         className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
       >
-        <div className="p-6 md:p-8">
+        <div className="p-5 sm:p-6 md:p-8">
           <div className="flex flex-col items-center text-center gap-4">
             <div className="shrink-0 w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center border-4 border-white shadow-sm">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -77,7 +78,7 @@ export default function ModalKonfirmasi({
         </div>
         
         {/* Tombol-tombol disusun menjadi kolom (bertumpuk ke bawah) di semua ukuran layar */}
-        <div className="p-6 pt-0 flex flex-col gap-3 w-full">
+        <div className="p-5 sm:p-6 pt-0 sm:pt-0 flex flex-col gap-3 w-full">
           {tombol.map((t, i) => {
             // Tentukan gaya tombol berdasarkan properti 'gaya'
             let styleTombol = "bg-blue-600 text-white hover:bg-blue-700 border border-transparent"; 
@@ -113,6 +114,7 @@ export default function ModalKonfirmasi({
           </button>
         </div>
       </div>
+     </div>
     </div>
   );
 }

@@ -78,7 +78,7 @@ export default function LoginPage() {
   return (
     // Tambahkan poppins.className pada div pembungkus utama ini
     <div 
-      className={`min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-900 ${poppins.className}`}
+      className={`tinggi-min-layar flex items-center justify-center relative overflow-hidden bg-slate-900 p-4 sm:p-6 ${poppins.className}`}
       style={{
         // Menggunakan gambar gardu induk / pembangkit listrik dari Unsplash sebagai placeholder
         backgroundImage: "url('https://images.unsplash.com/photo-1548337138-e87d889cc369?q=80&w=2036&auto=format&fit=crop')",
@@ -93,12 +93,12 @@ export default function LoginPage() {
         GLASSMORPHISM CARD 
         bg-white/10 (putih transparan), backdrop-blur-md (efek blur kaca), border-white/20 (bingkai tipis)
       */}
-      <div className="w-full max-w-md relative z-10 p-8 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+      <div className="w-full max-w-md relative z-10 p-6 sm:p-8 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
         
         {/* Header & Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           {/* Ubah kotak logo di sini */}
-          <div className="w-24 h-24 mx-auto flex items-center justify-center mb-4 relative drop-shadow-lg">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto flex items-center justify-center mb-4 relative drop-shadow-lg">
             <Image 
               src="/logoSisgrid.png"
               alt="Logo Lab Sistem Tenaga"
@@ -107,7 +107,7 @@ export default function LoginPage() {
               priority
             />
           </div>
-          <h1 className="text-2xl font-bold text-white drop-shadow-md">Registrasi Praktikum</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md">Registrasi Praktikum</h1>
           <p className="text-sm text-gray-200 mt-1 drop-shadow-md">Power System and Grid Digitalization Laboratory</p>
         </div>
 
@@ -177,7 +177,7 @@ export default function LoginPage() {
         </form>
 
         {/* Footer Info */}
-        <div className="mt-8 text-center text-xs text-gray-300 drop-shadow-sm">
+        <div className="mt-6 sm:mt-8 text-center text-xs text-gray-300 drop-shadow-sm">
           <p>Jika mengalami kendala, silakan hubungi Asisten Laboratorium.</p>
           <p className="mt-1 font-medium tracking-wider">© 2026 Sisgrid Laboratory</p>
         </div>
